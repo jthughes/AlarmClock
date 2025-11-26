@@ -7,6 +7,11 @@
 U8X8_SSD1306_128X64_NONAME_4W_SW_SPI u8x8(/* clock=*/ 12, /* data=*/ 11, /* cs=*/ 8, /* dc=*/ 9, /* reset=*/ 10);
 
 bool tick;
+bool alarmTriggered;
+
+#include "alarm.h"
+
+Alarm alarms[20];
 
 void setup() {
   Serial.begin(9600);
@@ -20,7 +25,15 @@ void setup() {
   u8x8.begin();
   RTCTime currentTime;
   RTC.getTime(currentTime);
-  writeTime(currentTime); 
+  writeTime(currentTime);
+
+  alarms[0] = Alarm(currentTime.getUnixTime() + 60);
+  alarms[0].arm(alarmCallback);
+  alarmTriggered = false;
+}
+
+void alarmCallback() {
+  alarmTriggered = true;
 }
 
 void writeTime(RTCTime time) {
@@ -65,11 +78,13 @@ void loop() {
       writeTime(currentTime); 
     }
   }
+
+  if (alarmTriggered) {
+    alarmTriggered = false;
+    Serial.println("Alarm!");
+  }
 }
 
 void clockTick() {
   tick = true;
 }
-
-
-
