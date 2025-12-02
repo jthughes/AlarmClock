@@ -136,6 +136,7 @@ namespace alarm_time {
         if (result) {
           if (alarmEntry == 0) {
             alarms[alarmCount] = Alarm(time.minute*60 + time.hour*3600 +12*3600*time.afternoon);
+            alarmCount++;
           }
         } 
       }
