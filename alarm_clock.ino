@@ -8,10 +8,19 @@ U8X8_SSD1306_128X64_NONAME_4W_SW_SPI u8x8(/* clock=*/ 12, /* data=*/ 11, /* cs=*
 
 bool tick;
 bool alarmTriggered;
+bool menu; 
 
 #include "alarm.h"
 
 Alarm alarms[20];
+
+
+// 4x4 Matrix
+const int btnCount = 3;
+int btnPin[btnCount] = {4, 3, 2};
+#include "button.h"
+
+
 
 void setup() {
   Serial.begin(9600);
@@ -27,14 +36,99 @@ void setup() {
   RTC.getTime(currentTime);
   writeTime(currentTime);
 
-  alarms[0] = Alarm(currentTime.getUnixTime() + 60);
+  alarms[0] = Alarm(currentTime.getUnixTime() + 600, true, 0,300,0,"Monday");
   alarms[0].arm(alarmCallback);
+
+  alarms[1] = Alarm(currentTime.getUnixTime() + 6000, true, 0, 300, 0, "Friday");
+  alarms[1].arm(alarmCallback);
+
   alarmTriggered = false;
+
+  menu = false;
+
+  pinMode(btnPin[button::NEXT], INPUT);
+  pinMode(btnPin[button::SELECT], INPUT);
+  pinMode(btnPin[button::MENU], INPUT);
+  
 }
 
 void alarmCallback() {
   alarmTriggered = true;
 }
+
+void clockTick() {
+  tick = true;
+}
+
+void loop() {
+  if (menu) {
+    viewAlarms();
+  }
+
+  if (button::pressed(button::MENU)) {
+    Serial.println("(Pressed MENU): ");
+    menu = true;
+  }
+
+  if (tick) {
+    tick = false;
+    RTCTime currentTime;
+    RTC.getTime(currentTime);
+    if (currentTime.getSeconds() == 0) {
+      writeTime(currentTime); 
+    }
+  }
+
+  if (alarmTriggered) {
+    alarmTriggered = false;
+    Serial.println("Alarm!");
+  }
+}
+
+void displayPrompt(int index) {
+  if (index == 0) {
+    Serial.println("> New Alarm");
+  } else {
+    Serial.println("> " + String(index) + ": " + alarms[index - 1].label);
+  }
+}
+
+void viewAlarms() {
+  int index = 0;
+  bool menuActive = true;
+  displayPrompt(index);
+  while (menuActive) {
+    if (button::pressed(button::NEXT)) {
+      Serial.print("(Pressed NEXT): ");
+      index += 1;
+      if (index > 20 || alarms[index -1].set == false) {
+        index = 0;
+      }
+      displayPrompt(index);
+    }
+
+    if (button::pressed(button::MENU)) {
+      Serial.print("(Pressed MENU): ");
+      menuActive = false;
+      menu = false;
+      break ;
+    }
+  }
+  Serial.println("Exiting menu");
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 void writeTime(RTCTime time) {
   char time_str[8] = "00:00AM";
@@ -66,25 +160,4 @@ void writeTime(RTCTime time) {
   u8x8.setFont(u8x8_font_chroma48medium8_r);
   u8x8.drawString(1, 0, time_str);
   Serial.println("Time is " + String(time_str));
-}
-
-void loop() {
-
-  if (tick) {
-    tick = false;
-    RTCTime currentTime;
-    RTC.getTime(currentTime);
-    if (currentTime.getSeconds() == 0) {
-      writeTime(currentTime); 
-    }
-  }
-
-  if (alarmTriggered) {
-    alarmTriggered = false;
-    Serial.println("Alarm!");
-  }
-}
-
-void clockTick() {
-  tick = true;
 }

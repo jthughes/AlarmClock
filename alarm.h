@@ -10,7 +10,6 @@ class Alarm {
     
     void arm(void (*callback)());
 
-  private:
     bool          set;
     bool          enabled;
     char          *label;
@@ -18,6 +17,9 @@ class Alarm {
     int           repeat;
     int           repeat_delay_s;
     unsigned int  days;
+
+  private:
+    
     //music track
 };
 
