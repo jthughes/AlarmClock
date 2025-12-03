@@ -2,7 +2,7 @@
 #define MENU_MAIN_H
 
 namespace root {
-  void displayMenuMain(int index) {
+  void display(int index) {
     if (index == 0) {
       Serial.println("> New Alarm");
     } else {
@@ -18,28 +18,30 @@ namespace root {
     }
   }
 
-  void runMainMenu() {
+  void run() {
     int index = 0;
     bool menuActive = true;
-    displayMenuMain(index);
+    display(index);
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
-        Serial.print("(Pressed NEXT): ");
         index += 1;
         if (index > 20 || alarms[index -1].set == false) {
           index = 0;
         }
-        displayMenuMain(index);
+        display(index);
       }
 
       if (button::pressed(button::SELECT)) {
-        Serial.print("(Pressed SEL ): ");
-        menu::alarm_time::runMenuAlarmSetTime(index);
+        if (index == 0) {
+          menu::alarm_time::run(index);
+        } else {
+          menu::alarm_modify::run(index);
+        }
+        
         menuActive = false;
       }
 
       if (button::pressed(button::MENU)) {
-        Serial.print("(Pressed MENU): ");
         menuActive = false;
         break ;
       }

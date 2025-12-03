@@ -13,6 +13,12 @@ namespace button {
     MENU
   };
 
+  String btnText[] = {
+    "NEXT",
+    "SEL ",
+    "MENU"
+  };
+
   // Should return true once when determined that button has been pressed
   bool pressed(int btnID) {
     bool result = false;
@@ -30,6 +36,9 @@ namespace button {
         reportedState[btnID] = newState;
 
         if (reportedState[btnID] == HIGH) {
+          Serial.print("(Pressed ");
+          Serial.print(btnText[btnID]);
+          Serial.print("): ");
           result = true;
         }
       }

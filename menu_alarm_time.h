@@ -17,7 +17,7 @@ namespace alarm_time {
   };
 
 
-  void displayAlarmSetTime(int menuState, struct ClockTime time) {
+  void display(int menuState, struct ClockTime time) {
     if (menuState == SET_HOUR) {
       Serial.print("[");
     } else {
@@ -90,31 +90,30 @@ namespace alarm_time {
 
 
   // New alarm should only show some options: Want to be able to set quickly. For more advanced use, modify after setting.
-  void runMenuAlarmSetTime(int alarmEntry) {
+  void run(int alarmEntry) {
     int menuState = SET_HOUR;
     bool menuActive = true;
     ClockTime time;
 
-    displayAlarmSetTime(menuState, time);
+    display(menuState, time);
 
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
-        Serial.print("(Pressed NEXT): ");
 
         switch (menuState) {
           case SET_HOUR:{
             time.hour = time.hour%12 + 1;
-            displayAlarmSetTime(menuState, time);
+            display(menuState, time);
           }
           break;
           case SET_MINUTE: {
             time.minute = (time.minute + 5)%60;
-            displayAlarmSetTime(menuState, time);
+            display(menuState, time);
           }
           break;
           case SET_AFTERNOON: {
             time.afternoon = !time.afternoon;
-            displayAlarmSetTime(menuState, time);
+            display(menuState, time);
           }
           break;
           default:
@@ -124,15 +123,13 @@ namespace alarm_time {
       }
 
       if (button::pressed(button::SELECT)) {
-        Serial.print("(Pressed SEL ): ");
         menuState = (menuState + 1) % 3;
-        displayAlarmSetTime(menuState, time);
+        display(menuState, time);
       }
 
       if (button::pressed(button::MENU)) {
-        Serial.print("(Pressed MENU): ");
         menuActive = false;
-        int result = menu::runMenuSaveResult();
+        int result = menu::save_result::run();
         if (result) {
           if (alarmEntry == 0) {
             alarms[alarmCount] = Alarm(time.minute*60 + time.hour*3600 +12*3600*time.afternoon);

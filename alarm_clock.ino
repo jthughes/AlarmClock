@@ -65,7 +65,7 @@ void clockTick() {
 void loop() {
   
   if (menuActive) {
-    menu::root::runMainMenu();
+    menu::root::run();
     menuActive = false;
     RTCTime currentTime;
     RTC.getTime(currentTime);
