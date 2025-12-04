@@ -1,6 +1,8 @@
 #ifndef MENU_ALARM_MODIFY_H
 #define MENU_ALARM_MODIFY_H
 
+#include "alarm.h"
+
 namespace alarm_modify {
 
   enum menuItem {
@@ -22,7 +24,7 @@ namespace alarm_modify {
     Serial.println("-> " + menuText[menuState]);
   }
 
-  void run(int alarmEntry) {
+  bool run(Alarm *tempAlarm) {
     int menuState = SET_TIME;
     bool menuActive = true;
 
@@ -37,15 +39,15 @@ namespace alarm_modify {
       if (button::pressed(button::SELECT)) {
         switch (menuState) {
           case SET_TIME: {
-            menu::alarm_time::run(alarmEntry);
+            menu::alarm_time::run(tempAlarm);
           }
           break;
           case SET_DAYS: {
-            menu::alarm_days::run(alarmEntry);
+            menu::alarm_days::run(tempAlarm);
           }
           break;
           case SET_REPEAT: {
-            menu::alarm_repeat::run(alarmEntry);
+            menu::alarm_repeat::run(tempAlarm);
           }
           break;
         }
@@ -53,16 +55,10 @@ namespace alarm_modify {
 
       if (button::pressed(button::MENU)) {
         menuActive = false;
-        int result = menu::save_result::run();
-        if (result) {
-          if (alarmEntry == 0) {
-            // alarms[alarmCount] = Alarm(time.minute*60 + time.hour*3600 +12*3600*time.afternoon);
-            alarmCount++;
-          }
-        } 
+        Serial.println("Exiting configure alarm menu");
       }
     }
-    Serial.println("Exiting configure alarm menu");
+    
   }
 }
 

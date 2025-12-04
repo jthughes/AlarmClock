@@ -1,6 +1,8 @@
 #ifndef MENU_ALARM_REPEAT_H
 #define MENU_ALARM_REPEAT_H
 
+#include "alarm.h"
+
 namespace alarm_repeat {
 
   int menuSize = 2;
@@ -9,43 +11,40 @@ namespace alarm_repeat {
     REPEAT_DELAY,
   };
 
-  const int repeatMax = 5;
+  
 
-  int repeatCount = 0;
 
-  int repeatDelay = 5;
-
-  void display(int menuState) {
+  void display(Alarm *tempAlarm, int menuState) {
     if (menuState == REPEAT_COUNT) {
       Serial.print("-> Repeat: ");
-      Serial.println(repeatCount);
+      Serial.println(tempAlarm->repeat);
     } else if (menuState == REPEAT_DELAY) {
       Serial.print("-> Delay (min): ");
-      Serial.println(repeatDelay);
+      Serial.println(tempAlarm->repeat_delay_min);
     }
   }
 
-  void run(int alarmEntry) {
+  void run(Alarm *tempAlarm) {
     int menuState = REPEAT_COUNT;
     bool menuActive = true;
 
-    display(menuState);
+    display(tempAlarm, menuState);
 
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
-        if (repeatCount > 0) {
+        if (tempAlarm->repeat > 0) {
           menuState = (menuState + 1) % menuSize;
         }
-        display(menuState);
+        display(tempAlarm, menuState);
       }
 
       if (button::pressed(button::SELECT)) {
         if (menuState == REPEAT_COUNT) {
-          repeatCount = (repeatCount + 1) % repeatMax;
+          tempAlarm->repeat = (tempAlarm->repeat + 1) % tempAlarm->repeatMax;
         } else if (menuState == REPEAT_DELAY) {
-          repeatDelay = repeatDelay % 30 + 5;
+          tempAlarm->repeat_delay_min = tempAlarm->repeat_delay_min % 30 + 5;
         }
-        display(menuState);
+        display(tempAlarm, menuState);
       }
 
       if (button::pressed(button::MENU)) {

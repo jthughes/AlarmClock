@@ -3,7 +3,7 @@
 
 namespace root {
   void display(int index) {
-    if (index == 0) {
+    if (index == 0 && alarmCount != alarmMax) {
       Serial.println("> New Alarm");
     } else {
       Serial.print("> " + String(index) + ": ");
@@ -18,7 +18,7 @@ namespace root {
     }
   }
 
-  void run() {
+  void run(Alarm *alarms, int maxAlarms) {
     int index = 0;
     bool menuActive = true;
     display(index);
@@ -32,12 +32,21 @@ namespace root {
       }
 
       if (button::pressed(button::SELECT)) {
+        Alarm tempAlarm;
         if (index == 0) {
-          menu::alarm_time::run(index);
+          menu::alarm_time::run(&tempAlarm);
+          if (menu::save_result::run()) {
+            tempAlarm.set = true;
+            alarms[alarmCount] = tempAlarm;
+            alarmCount++;
+          } 
         } else {
-          menu::alarm_modify::run(index);
+          menu::alarm_modify::run(&tempAlarm);
+          if (menu::save_result::run()) {
+            tempAlarm.set = true;
+            alarms[index-1] = tempAlarm;
+          }
         }
-        
         menuActive = false;
       }
 

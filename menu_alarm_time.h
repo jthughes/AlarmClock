@@ -1,6 +1,8 @@
 #ifndef MENU_ALARM_TIME_H
 #define MENU_ALARM_TIME_H
 
+#include "alarm.h"
+
 namespace alarm_time {
 
   struct ClockTime {
@@ -90,7 +92,7 @@ namespace alarm_time {
 
 
   // New alarm should only show some options: Want to be able to set quickly. For more advanced use, modify after setting.
-  void run(int alarmEntry) {
+  bool run(Alarm *tempAlarm) {
     int menuState = SET_HOUR;
     bool menuActive = true;
     ClockTime time;
@@ -129,16 +131,11 @@ namespace alarm_time {
 
       if (button::pressed(button::MENU)) {
         menuActive = false;
-        int result = menu::save_result::run();
-        if (result) {
-          if (alarmEntry == 0) {
-            alarms[alarmCount] = Alarm(time.minute*60 + time.hour*3600 +12*3600*time.afternoon);
-            alarmCount++;
-          }
-        } 
+        Serial.println("Exiting configure alarm menu");
+        tempAlarm->time = time.minute*60 + time.hour*3600 +12*3600*time.afternoon;
       }
     }
-    Serial.println("Exiting configure alarm menu");
+    
   }
 }
 

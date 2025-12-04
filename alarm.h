@@ -15,8 +15,10 @@ class Alarm {
     char          *label;
     time_t        time;
     int           repeat;
-    int           repeat_delay_s;
+    int           repeat_delay_min;
     unsigned int  days;
+
+    static const int     repeatMax = 5;
 
   private:
     

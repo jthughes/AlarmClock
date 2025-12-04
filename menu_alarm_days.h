@@ -1,6 +1,8 @@
 #ifndef MENU_ALARM_DAYS_H
 #define MENU_ALARM_DAYS_H
 
+#include "alarm.h"
+
 namespace alarm_days {
 
   const int menuSize = 7;
@@ -15,32 +17,30 @@ namespace alarm_days {
     "Sun"
   };
 
-  unsigned int selected = 0;
-
-  void display(int menuState) {
+  void display(Alarm *tempAlarm, int menuState) {
     Serial.print("-> " + menuText[menuState]);
-    if (selected >> menuState & 1) {
+    if (tempAlarm->days >> menuState & 1) {
       Serial.println(" [*]");
     } else {
       Serial.println(" [ ]");
     }
   }
 
-  void run(int alarmEntry) {
+  void run(Alarm *tempAlarm) {
     int menuState = 0;
     bool menuActive = true;
 
-    display(menuState);
+    display(tempAlarm, menuState);
 
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
         menuState = (menuState + 1) % menuSize;
-        display(menuState);
+        display(tempAlarm, menuState);
       }
 
       if (button::pressed(button::SELECT)) {
-        selected = selected ^ (1 << menuState);
-        display(menuState);
+        tempAlarm->days = tempAlarm->days ^ (1 << menuState);
+        display(tempAlarm, menuState);
       }
 
       if (button::pressed(button::MENU)) {

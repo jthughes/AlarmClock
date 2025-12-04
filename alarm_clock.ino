@@ -12,7 +12,8 @@ bool menuActive;
 
 #include "alarm.h"
 
-Alarm alarms[20];
+const int alarmMax = 20;
+Alarm alarms[alarmMax];
 int alarmCount = 2;
 
 // 4x4 Matrix
@@ -65,7 +66,8 @@ void clockTick() {
 void loop() {
   
   if (menuActive) {
-    menu::root::run();
+    menu::root::run(alarms, alarmMax);
+
     menuActive = false;
     RTCTime currentTime;
     RTC.getTime(currentTime);
