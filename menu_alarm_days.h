@@ -39,7 +39,7 @@ namespace alarm_days {
       }
 
       if (button::pressed(button::SELECT)) {
-        selected = selected | (1 << menuState);
+        selected = selected ^ (1 << menuState);
         display(menuState);
       }
 

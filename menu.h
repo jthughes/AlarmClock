@@ -28,6 +28,7 @@ namespace menu {
     }
   }
   
+  #include "menu_alarm_repeat.h"
   #include "menu_alarm_days.h"
   #include "menu_alarm_time.h"
   #include "menu_alarm_modify.h"

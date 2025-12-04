@@ -44,6 +44,10 @@ namespace alarm_modify {
             menu::alarm_days::run(alarmEntry);
           }
           break;
+          case SET_REPEAT: {
+            menu::alarm_repeat::run(alarmEntry);
+          }
+          break;
         }
       }
 
