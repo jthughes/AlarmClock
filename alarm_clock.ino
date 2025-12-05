@@ -22,8 +22,13 @@ int btnPin[btnCount] = {4, 3, 2};
 #include "button.h"
 
 
+#include <SoftwareSerial.h>
+
+SoftwareSerial mp3(5, 6);
+
 
 void setup() {
+  mp3.begin(9600);
   Serial.begin(9600);
   while (!Serial);
 
@@ -36,8 +41,9 @@ void setup() {
   RTCTime currentTime;
   RTC.getTime(currentTime);
   writeTime(currentTime);
+  Serial.println("");
 
-  alarms[0] = Alarm(currentTime.getUnixTime() + 600, true, 0,300,0,"Monday");
+  alarms[0] = Alarm(currentTime.getUnixTime() + 60, true, 0,300,0,"Monday");
   alarms[0].arm(alarmCallback);
 
   alarms[1] = Alarm(currentTime.getUnixTime() + 6000, true, 0, 300, 0, "Friday");
@@ -85,9 +91,11 @@ void loop() {
     RTCTime currentTime;
     RTC.getTime(currentTime);
     if (currentTime.getSeconds() == 0) {
+      
       Serial.print("Time is "); 
       writeTime(currentTime);
       Serial.println("");
+      checkAlarms(alarms, alarmCount);
     }
   }
 
@@ -96,6 +104,32 @@ void loop() {
     Serial.println("Alarm!");
   }
 }
+
+// This will like need to be modified to handle checks for repeating alarms
+void checkAlarms(Alarm *alarm, int alarmCount) {
+  for (int index = 0; index < alarmCount; index += 1) {
+
+
+    if (alarm[index].enabled && alarm[index].isNow()) {
+      Serial.print("Alarm ");
+      Serial.print(index + 1);
+      Serial.println(" is ringing!");
+      // Play?
+      mp3.write(0x7E);
+      mp3.write(0xFF);
+      mp3.write(0x06);
+      mp3.write(0x03);
+      mp3.write((uint8_t)0x00);
+      mp3.write((uint8_t)0x00);
+      mp3.write(0x01);
+      mp3.write(0xFE);
+      mp3.write(0xF7);
+      mp3.write(0xEF);
+      break ;
+    }
+  }
+} 
+
 
 void writeTime(RTCTime time) {
   char time_str[8] = "00:00AM";

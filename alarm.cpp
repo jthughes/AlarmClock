@@ -20,3 +20,19 @@ void Alarm::arm(void (*callback)()) {
   RTC.setAlarmCallback(callback, alarmTime, matchTime);
 }
 
+
+bool Alarm::isNow() {
+  RTCTime alarmTime;
+  alarmTime.setUnixTime(this->time);
+
+  RTCTime currentTime;
+  RTC.getTime(currentTime);
+  
+  if (alarmTime.getHour() == currentTime.getHour()
+      && alarmTime.getMinutes() == currentTime.getMinutes()
+      && ((this->days == 0 && this->enabled) 
+          || (this->days >> (int)currentTime.getDayOfWeek()) & 1 )) {
+            return true;
+          }
+  return false;
+}

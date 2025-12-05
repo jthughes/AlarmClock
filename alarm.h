@@ -10,6 +10,8 @@ class Alarm {
     
     void arm(void (*callback)());
 
+    bool isNow();
+
     bool          set;
     bool          enabled;
     char          *label;
@@ -21,7 +23,7 @@ class Alarm {
     static const int     repeatMax = 5;
 
   private:
-    
+
     //music track
 };
 

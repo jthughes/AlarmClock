@@ -8,13 +8,13 @@ namespace alarm_days {
   const int menuSize = 7;
 
   String menuText[menuSize] = {
-    "Mon",
-    "Tue",
-    "Wed",
-    "Thu",
-    "Fri",
-    "Sat",
-    "Sun"
+    "Sun", // 0 days since Sunday to align with tm_wday
+    "Mon", // 1
+    "Tue", // 2
+    "Wed", // 3
+    "Thu", // 4
+    "Fri", // 5
+    "Sat"  // 6
   };
 
   void display(Alarm *tempAlarm, int menuState) {

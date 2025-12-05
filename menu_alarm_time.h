@@ -97,6 +97,16 @@ namespace alarm_time {
     bool menuActive = true;
     ClockTime time;
 
+    RTCTime alarmTime;
+    alarmTime.setUnixTime(tempAlarm->time);
+
+    time.hour = alarmTime.getHour();
+    time.minute = alarmTime.getMinutes();
+    if (time.hour > 12) {
+      time.hour -= 12;
+      time.afternoon = true;
+    }
+
     display(menuState, time);
 
     while (menuActive) {

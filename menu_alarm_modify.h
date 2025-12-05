@@ -51,6 +51,7 @@ namespace alarm_modify {
           }
           break;
         }
+        display(menuState);
       }
 
       if (button::pressed(button::MENU)) {

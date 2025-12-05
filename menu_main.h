@@ -37,13 +37,16 @@ namespace root {
           menu::alarm_time::run(&tempAlarm);
           if (menu::save_result::run()) {
             tempAlarm.set = true;
+            tempAlarm.enabled = true;
             alarms[alarmCount] = tempAlarm;
             alarmCount++;
           } 
         } else {
+          tempAlarm = alarms[index];
           menu::alarm_modify::run(&tempAlarm);
           if (menu::save_result::run()) {
             tempAlarm.set = true;
+            tempAlarm.enabled = true;
             alarms[index-1] = tempAlarm;
           }
         }
