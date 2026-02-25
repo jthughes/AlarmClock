@@ -19,9 +19,13 @@ namespace alarm_modify {
     "REPEAT"
   };
 
-
   void display(int menuState) {
-    Serial.println("-> " + menuText[menuState]);
+    String message = "-> " + menuText[menuState];
+    Serial.println(message);
+    lcd.clear();
+    lcd.print(message);
+    lcd.setCursor(0, 1);
+    lcd.print("MENU-NEXT-SELECT");
   }
 
   bool run(Alarm *tempAlarm) {
@@ -62,6 +66,5 @@ namespace alarm_modify {
     
   }
 }
-
 
 #endif // MENU_ALARM_MODIFY_H

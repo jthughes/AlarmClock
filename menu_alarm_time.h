@@ -11,73 +11,75 @@ namespace alarm_time {
     bool afternoon = false;
   };
 
-
   enum configAlarmMenu {
     SET_HOUR,
     SET_MINUTE,
     SET_AFTERNOON,
   };
 
-
   void display(int menuState, struct ClockTime time) {
+
+    String message = "";
     if (menuState == SET_HOUR) {
-      Serial.print("[");
+      message += "[";
     } else {
-      Serial.print(" ");
+      message += " ";
     }
 
     if (time.hour < 10) {
-      Serial.print(" ");
+      message += " ";
     }
-    Serial.print(time.hour);
+    message += String(time.hour);
 
     if (menuState == SET_HOUR) {
-      Serial.print("]");
+      message += "]";
     } else {
-      Serial.print(" ");
+      message += " ";
     }
 
+    message += ":";
     
-    Serial.print(":");
-    
-
     if (menuState == SET_MINUTE) {
-      Serial.print("[");
+      message += "[";
     }  else {
-      Serial.print(" ");
+      message += " ";
     }
 
     if (time.minute < 10) {
-      Serial.print("0");
+      message += "0";
     }
-    Serial.print(time.minute);
+    message += String(time.minute);
 
     if (menuState == SET_MINUTE) {
-      Serial.print("]");
+      message += "]";
     } else {
-      Serial.print(" ");
+      message += " ";
     }
 
 
     if (menuState == SET_AFTERNOON) {
-      Serial.print("[");
+      message += "[";
     } else {
-      Serial.print(" ");
+      message += " ";
     }
 
     if (time.afternoon) {
-      Serial.print("PM");
+      message += "PM";
     } else {
-      Serial.print("AM");
+      message += "AM";
     }
 
     if (menuState == SET_AFTERNOON) {
-      Serial.print("]");
+      message += "]";
     } else {
-      Serial.print(" ");
+      message += " ";
     }
 
-    Serial.println("");
+    Serial.println(message);
+    lcd.clear();
+    lcd.print(message);
+    lcd.setCursor(0, 1);
+    lcd.print("MENU-NEXT-SELECT");
   }
 
 

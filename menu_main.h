@@ -5,17 +5,33 @@ namespace root {
   void display(int index) {
     if (index == 0 && alarmCount != alarmMax) {
       Serial.println("> New Alarm");
+      lcd.clear();
+      lcd.print("> New Alarm");
+      lcd.setCursor(0, 1);
+      lcd.print("MENU-NEXT-SELECT");
     } else {
-      Serial.print("> " + String(index) + ": ");
       RTCTime timeToPrint = RTCTime(alarms[index - 1].time);
-      writeTime(timeToPrint);
+
+      char time_str[8];
+      timeString(timeToPrint, time_str);
+
+      
+      String message = "> " + String(index) + ": " + String(time_str);
+
+      // Write to serial monitor
       if (alarms[index - 1].label) {
-        Serial.print(" (");
-        Serial.print(alarms[index - 1].label);
-        Serial.print(")");
+        message += " (" + String(alarms[index - 1].label) + ")";
       }
-      Serial.println("");
+      Serial.println(message);
+
+      // Write to screen
+      lcd.clear();
+      lcd.print(message);
+
+      // writeTime(timeToPrint);
     }
+    lcd.setCursor(0, 1);
+    lcd.print("MENU-NEXT-SELECT");
   }
 
   void run(Alarm *alarms, int maxAlarms) {

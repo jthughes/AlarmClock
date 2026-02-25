@@ -18,12 +18,19 @@ namespace alarm_days {
   };
 
   void display(Alarm *tempAlarm, int menuState) {
-    Serial.print("-> " + menuText[menuState]);
+    String message = "-> " + menuText[menuState];
     if (tempAlarm->days >> menuState & 1) {
-      Serial.println(" [*]");
+      message += " [*]";
     } else {
-      Serial.println(" [ ]");
+      message += " [ ]";
     }
+
+    Serial.println(message);
+    lcd.clear();
+    lcd.print(message);
+    lcd.setCursor(0, 1);
+    lcd.print("MENU-NEXT-SELECT");
+
   }
 
   void run(Alarm *tempAlarm) {

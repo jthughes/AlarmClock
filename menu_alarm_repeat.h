@@ -11,17 +11,20 @@ namespace alarm_repeat {
     REPEAT_DELAY,
   };
 
-  
-
 
   void display(Alarm *tempAlarm, int menuState) {
+    String message = "";
     if (menuState == REPEAT_COUNT) {
-      Serial.print("-> Repeat: ");
-      Serial.println(tempAlarm->repeat);
+      message = "-> Repeat: " + String(tempAlarm->repeat);
     } else if (menuState == REPEAT_DELAY) {
-      Serial.print("-> Delay (min): ");
-      Serial.println(tempAlarm->repeat_delay_min);
+      message = "-> Delay (min): " + String(tempAlarm->repeat_delay_min);
     }
+
+    Serial.println(message);
+    lcd.clear();
+    lcd.print(message);
+    lcd.setCursor(0, 1);
+    lcd.print("MENU-NEXT-SELECT");
   }
 
   void run(Alarm *tempAlarm) {

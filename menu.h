@@ -6,15 +6,29 @@ namespace menu {
     bool run() {
       bool save = false;
       bool menuActive = true;
-      Serial.println(" STORE [DISCARD]");
+      String store_string   = "[STORE] DISCARD ";
+      String discard_string = " STORE [DISCARD]";
+      String current = discard_string;
+
+      Serial.println(current);
+      lcd.clear();
+      lcd.print(current);
+      lcd.setCursor(0,1);
+      lcd.print("    -SWAP-SELECT");
+
       while (menuActive) {
         if (button::pressed(button::NEXT)) {
           save = !save;
           if (save) {
-            Serial.println("[STORE] DISCARD");
+            current = store_string;
           } else {
-            Serial.println(" STORE [DISCARD]");
+            current = discard_string;
           }
+          Serial.println(current);
+          lcd.clear();
+          lcd.print(current);
+          lcd.setCursor(0,1);
+          lcd.print("    -SWAP-SELECT");
         }
         if (button::pressed(button::SELECT)) {
           if (save) {

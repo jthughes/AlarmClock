@@ -2,8 +2,8 @@
 #define BUTTON_H
 
 namespace button {
-  int reportedState[btnCount] = {LOW};
-  int lastState[btnCount] = {LOW};
+  int reportedState[btnCount] = {HIGH};
+  int lastState[btnCount] = {HIGH};
   unsigned long lastDebounceTime[btnCount] = {0};
   unsigned long debounceDelay = 50;
 
@@ -35,7 +35,7 @@ namespace button {
       if (newState != reportedState[btnID]) {
         reportedState[btnID] = newState;
 
-        if (reportedState[btnID] == HIGH) {
+        if (reportedState[btnID] == LOW) {
           Serial.print("(Pressed ");
           Serial.print(btnText[btnID]);
           Serial.print("): ");
