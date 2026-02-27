@@ -3,33 +3,26 @@
 
 namespace root {
   void display(int index) {
+    String message = "";
     if (index == 0 && alarmCount != alarmMax) {
-      Serial.println("> New Alarm");
-      lcd.clear();
-      lcd.print("> New Alarm");
-      lcd.setCursor(0, 1);
-      lcd.print("MENU-NEXT-SELECT");
+      message = "> New Alarm";
     } else {
       RTCTime timeToPrint = RTCTime(alarms[index - 1].time);
-
       char time_str[8];
       timeString(timeToPrint, time_str);
 
-      
-      String message = "> " + String(index) + ": " + String(time_str);
-
-      // Write to serial monitor
-      if (alarms[index - 1].label) {
-        message += " (" + String(alarms[index - 1].label) + ")";
+      message = "> " + String(index) + ": " + String(time_str) + " [";
+      if (alarms[index - 1].enabled) {
+        message += "*";
+      } else {
+        message += " ";
       }
-      Serial.println(message);
-
-      // Write to screen
-      lcd.clear();
-      lcd.print(message);
-
-      // writeTime(timeToPrint);
+      message += "]";
     }
+    
+    Serial.println(message);
+    lcd.clear();
+    lcd.print(message);
     lcd.setCursor(0, 1);
     lcd.print("MENU-NEXT-SELECT");
   }
@@ -62,7 +55,6 @@ namespace root {
           bool modified = menu::alarm_modify::run(&tempAlarm);
           if (modified && menu::save_result::run()) {
             tempAlarm.set = true;
-            tempAlarm.enabled = true;
             alarms[index - 1] = tempAlarm;
           }
         }
