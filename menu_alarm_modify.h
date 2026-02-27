@@ -31,7 +31,8 @@ namespace alarm_modify {
   bool run(Alarm *tempAlarm) {
     int menuState = SET_TIME;
     bool menuActive = true;
-
+    bool modified = false;
+    
     display(menuState);
 
     while (menuActive) {
@@ -41,19 +42,23 @@ namespace alarm_modify {
       }
 
       if (button::pressed(button::SELECT)) {
+        bool result = false;
         switch (menuState) {
           case SET_TIME: {
-            menu::alarm_time::run(tempAlarm);
+            result = menu::alarm_time::run(tempAlarm);
           }
           break;
           case SET_DAYS: {
-            menu::alarm_days::run(tempAlarm);
+            result = menu::alarm_days::run(tempAlarm);
           }
           break;
           case SET_REPEAT: {
-            menu::alarm_repeat::run(tempAlarm);
+            result = menu::alarm_repeat::run(tempAlarm);
           }
           break;
+        }
+        if (result == true) {
+          modified = true;
         }
         display(menuState);
       }
@@ -63,7 +68,7 @@ namespace alarm_modify {
         Serial.println("Exiting configure alarm menu");
       }
     }
-    
+    return modified;
   }
 }
 

@@ -59,8 +59,8 @@ namespace root {
           } 
         } else { // Existing Alarm
           tempAlarm = alarms[index - 1];
-          menu::alarm_modify::run(&tempAlarm);
-          if (menu::save_result::run()) {
+          bool modified = menu::alarm_modify::run(&tempAlarm);
+          if (modified && menu::save_result::run()) {
             tempAlarm.set = true;
             tempAlarm.enabled = true;
             alarms[index - 1] = tempAlarm;

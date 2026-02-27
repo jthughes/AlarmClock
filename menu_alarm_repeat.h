@@ -15,21 +15,27 @@ namespace alarm_repeat {
   void display(Alarm *tempAlarm, int menuState) {
     String message = "";
     if (menuState == REPEAT_COUNT) {
-      message = "-> Repeat: " + String(tempAlarm->repeat);
+      message = ">Repeat: " + String(tempAlarm->repeat);
     } else if (menuState == REPEAT_DELAY) {
-      message = "-> Delay (min): " + String(tempAlarm->repeat_delay_min);
+      message = ">Delay(m): " + String(tempAlarm->repeat_delay_min);
     }
 
     Serial.println(message);
     lcd.clear();
     lcd.print(message);
     lcd.setCursor(0, 1);
-    lcd.print("MENU-NEXT-SELECT");
+    if (menuState == REPEAT_COUNT && tempAlarm->repeat == 0) {
+      lcd.print("MENU-    -SELECT");
+    } else {
+      lcd.print("MENU-NEXT-SELECT");
+    }
   }
 
-  void run(Alarm *tempAlarm) {
+  bool run(Alarm *tempAlarm) {
     int menuState = REPEAT_COUNT;
     bool menuActive = true;
+    int initial_repeat = tempAlarm->repeat;
+    int initial_delay = tempAlarm->repeat_delay_min;
 
     display(tempAlarm, menuState);
 
@@ -55,6 +61,8 @@ namespace alarm_repeat {
       }
     }
     Serial.println("Exiting modify alarm repeat menu");
+    bool modified = tempAlarm->repeat != initial_repeat || tempAlarm->repeat_delay_min != initial_delay;
+    return modified;
   }
 }
 

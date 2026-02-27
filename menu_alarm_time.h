@@ -97,6 +97,7 @@ namespace alarm_time {
   bool run(Alarm *tempAlarm) {
     int menuState = SET_HOUR;
     bool menuActive = true;
+    bool modified = false;
     ClockTime time;
 
     RTCTime alarmTime;
@@ -144,10 +145,12 @@ namespace alarm_time {
       if (button::pressed(button::MENU)) {
         menuActive = false;
         Serial.println("Exiting configure alarm menu");
+        time_t initial_time = tempAlarm->time;
         tempAlarm->time = time.minute*60 + time.hour*3600 +12*3600*time.afternoon;
+        modified = tempAlarm->time != initial_time;
       }
     }
-    
+    return modified;
   }
 }
 

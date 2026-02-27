@@ -33,9 +33,10 @@ namespace alarm_days {
 
   }
 
-  void run(Alarm *tempAlarm) {
+  bool run(Alarm *tempAlarm) {
     int menuState = 0;
     bool menuActive = true;
+    unsigned int initial_days = tempAlarm->days;
 
     display(tempAlarm, menuState);
 
@@ -55,6 +56,8 @@ namespace alarm_days {
       }
     }
     Serial.println("Exiting modify alarm days menu");
+    bool modified = tempAlarm->days != initial_days;
+    return modified;
   }
 }
 
