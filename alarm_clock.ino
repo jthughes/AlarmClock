@@ -28,7 +28,7 @@ SoftwareSerial mp3(6, 7);
 
 const int alarmMax = 20;
 Alarm alarms[alarmMax];
-int alarmCount = 2;
+int alarmCount = 0;
 
 
 bool tick;

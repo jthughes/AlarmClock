@@ -6,21 +6,33 @@
 namespace alarm_modify {
 
   enum menuItem {
+    SET_ENABLED,
     SET_TIME,
     SET_DAYS,
     SET_REPEAT,
   };
 
-  const int menuSize = 3;
+  const int menuSize = 4;
 
   String menuText[menuSize] = {
+    "ENABLED",
     "TIME",
     "DAYS",
     "REPEAT"
   };
 
-  void display(int menuState) {
+  void display(int menuState, Alarm *tempAlarm) {
     String message = "-> " + menuText[menuState];
+    if (menuState == menuItem::SET_ENABLED) {
+      message += " [";
+      if (tempAlarm->enabled) {
+        message += "*";
+      } else {
+        message += " ";
+      }
+      message += "]";
+    }
+
     Serial.println(message);
     lcd.clear();
     lcd.print(message);
@@ -29,30 +41,36 @@ namespace alarm_modify {
   }
 
   bool run(Alarm *tempAlarm) {
-    int menuState = SET_TIME;
+    int menuState = SET_ENABLED;
     bool menuActive = true;
     bool modified = false;
     
-    display(menuState);
+    bool initial_status = tempAlarm->enabled;
+
+    display(menuState, tempAlarm);
 
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
         menuState = (menuState + 1) % menuSize;
-        display(menuState);
+        display(menuState, tempAlarm);
       }
 
       if (button::pressed(button::SELECT)) {
         bool result = false;
         switch (menuState) {
-          case SET_TIME: {
+          case menuItem::SET_ENABLED: {
+            tempAlarm->enabled = !tempAlarm->enabled;
+          }
+          break; 
+          case menuItem::SET_TIME: {
             result = menu::alarm_time::run(tempAlarm);
           }
           break;
-          case SET_DAYS: {
+          case menuItem::SET_DAYS: {
             result = menu::alarm_days::run(tempAlarm);
           }
           break;
-          case SET_REPEAT: {
+          case menuItem::SET_REPEAT: {
             result = menu::alarm_repeat::run(tempAlarm);
           }
           break;
@@ -60,13 +78,16 @@ namespace alarm_modify {
         if (result == true) {
           modified = true;
         }
-        display(menuState);
+        display(menuState, tempAlarm);
       }
 
       if (button::pressed(button::MENU)) {
         menuActive = false;
         Serial.println("Exiting configure alarm menu");
       }
+    }
+    if (tempAlarm->enabled != initial_status) {
+      modified = true;
     }
     return modified;
   }
