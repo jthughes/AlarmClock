@@ -60,12 +60,6 @@ void setup() {
   RTCTime currentTime;
   RTC.getTime(currentTime);
   displayTime(currentTime);
-
-  alarms[0] = Alarm(currentTime.getUnixTime() + 60, true, 0, 30,0,"Monday");
-  alarms[0].arm(alarmCallback);
-
-  alarms[1] = Alarm(currentTime.getUnixTime() + 6000, true, 0, 30, 0, "Friday");
-  alarms[1].arm(alarmCallback);
 }
 
 void alarmCallback() {
