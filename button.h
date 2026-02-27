@@ -8,15 +8,15 @@ namespace button {
   unsigned long debounceDelay = 50;
 
   enum Button {
+    MENU,
     NEXT,
     SELECT,
-    MENU
   };
 
   String btnText[] = {
+    "MENU",
     "NEXT",
-    "SEL ",
-    "MENU"
+    "SEL "
   };
 
   // Should return true once when determined that button has been pressed
