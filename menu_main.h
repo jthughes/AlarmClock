@@ -41,7 +41,7 @@ namespace root {
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
         index += 1;
-        if (index > 20 || alarms[index -1].set == false) {
+        if (index > 20 || alarms[index - 1].set == false) {
           index = 0;
         }
         display(index);
@@ -49,7 +49,7 @@ namespace root {
 
       if (button::pressed(button::SELECT)) {
         Alarm tempAlarm;
-        if (index == 0) {
+        if (index == 0) { // New Alarm
           menu::alarm_time::run(&tempAlarm);
           if (menu::save_result::run()) {
             tempAlarm.set = true;
@@ -57,13 +57,13 @@ namespace root {
             alarms[alarmCount] = tempAlarm;
             alarmCount++;
           } 
-        } else {
-          tempAlarm = alarms[index];
+        } else { // Existing Alarm
+          tempAlarm = alarms[index - 1];
           menu::alarm_modify::run(&tempAlarm);
           if (menu::save_result::run()) {
             tempAlarm.set = true;
             tempAlarm.enabled = true;
-            alarms[index-1] = tempAlarm;
+            alarms[index - 1] = tempAlarm;
           }
         }
         menuActive = false;
