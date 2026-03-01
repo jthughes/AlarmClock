@@ -100,11 +100,13 @@ namespace alarm_time {
     bool modified = false;
     ClockTime time;
 
-    RTCTime alarmTime;
-    alarmTime.setUnixTime(tempAlarm->time);
 
-    time.hour = alarmTime.getHour();
-    time.minute = alarmTime.getMinutes();
+    tm_t alarmTime = {0};
+    gmtime_r(&tempAlarm->time, &alarmTime);
+
+    time.hour = alarmTime.tm_hour;
+    time.minute = alarmTime.tm_min;
+
     if (time.hour > 12) {
       time.hour -= 12;
       time.afternoon = true;

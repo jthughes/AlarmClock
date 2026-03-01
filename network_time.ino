@@ -1,6 +1,9 @@
 
 // Include the RTC library
-#include "RTC.h"
+// #include "RTC.h"
+#include <R4SwRTC.h>
+
+
 
 // Include the NTP library
 #include <NTPClient.h>
@@ -17,13 +20,21 @@ int wifiStatus = WL_IDLE_STATUS;
 WiFiUDP Udp; // a UDP instance to let us send and recieve packets over UDP
 NTPClient timeClient(Udp);
 
-void get_network_time() {
-  connectToWiFi();
+// When updating network, pass variable holding true into function to bypass infinite loops if failed. Check to see if value is false after return to determine whether to use returned result.
+bool get_network_time(time_t *network_time) {
+  
+  bool connected = connectToWiFi();
+  if (!connected) {
+    return false;
+  }
   
 
   Serial.println("\nStarting connection to server...");
   timeClient.begin();
-  timeClient.update();
+  bool updated = timeClient.update();
+  if (!updated) {
+    return false;
+  }
 
   // Get the current date/time from an NTP server and convert to appropriate time zone
   auto timeZoneOffsetHours = 10.5; 
@@ -33,20 +44,14 @@ void get_network_time() {
   2. Based on region, retrieve the DST start/end rules (tz database?)
   3. Get real UTC fron NTP, and compare with DST start/end rules to determine current timezone offset for display purpose.
   */
-  auto unixTime = timeClient.getEpochTime() + (timeZoneOffsetHours * 3600);
+  *network_time = timeClient.getEpochTime() + (timeZoneOffsetHours * 3600);
   Serial.print("Unix time = ");
-  Serial.println(unixTime);
+  Serial.println(*network_time);
 
-  RTC.begin();
+  timeClient.end();
+  WiFi.end();
 
-  RTCTime timeToSet = RTCTime(unixTime);
-  RTC.setTime(timeToSet);
-  delay(50);
-  // Retrieve the date/time from RTC and print
-  RTCTime currentTime;
-  RTC.getTime(currentTime);
-  Serial.println(currentTime);
-  Serial.println("The RTC was just set to: " + String(currentTime));
+  return true;
 }
 
 
@@ -67,12 +72,12 @@ void printWifiStatus() {
   Serial.println(" dBm");
 }
 
-void connectToWiFi() {
+bool connectToWiFi() {
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
     // don't continue
-    while (true);
+    return false;
   }
 
   String fv = WiFi.firmwareVersion();
@@ -81,7 +86,10 @@ void connectToWiFi() {
   }
 
   // attempt to connect to WiFi network:
-  while (wifiStatus != WL_CONNECTED) {
+  int attempts = 0;
+  int max_attempts = 10;
+  while (wifiStatus != WL_CONNECTED && attempts < max_attempts) {
+    attempts += 1;
     Serial.print("Attempting to connnect to SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
@@ -90,7 +98,12 @@ void connectToWiFi() {
     // wait 10 seconds for connection:
     delay(10000);
   }
+  if (attempts == max_attempts) {
+    Serial.println("Failed to connect to WiFi");
+    return false;
+  }
 
   Serial.println("Connected to WiFi");
   printWifiStatus();
+  return true;
 }

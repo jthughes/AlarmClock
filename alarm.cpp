@@ -1,5 +1,5 @@
 #include "alarm.h"
-#include "RTC.h"
+
 Alarm::Alarm(): set(false), enabled(false), time(0), repeat(0), repeat_delay_min(0), days(0), label(NULL) {
  
 }
@@ -10,28 +10,27 @@ Alarm::Alarm(time_t time, bool enabled, int repeat, int repeat_delay_min, unsign
 }
 
 void Alarm::arm(void (*callback)()) {
-  RTCTime alarmTime;
-  alarmTime.setUnixTime(this->time);
+  // RTCTime alarmTime;
+  // alarmTime.setUnixTime(this->time);
   
-  AlarmMatch matchTime;
-  matchTime.addMatchHour();
-  matchTime.addMatchMinute();
+  // AlarmMatch matchTime;
+  // matchTime.addMatchHour();
+  // matchTime.addMatchMinute();
 
-  RTC.setAlarmCallback(callback, alarmTime, matchTime);
+  // RTC.setAlarmCallback(callback, alarmTime, matchTime);
 }
 
 
-bool Alarm::isNow() {
-  RTCTime alarmTime;
-  alarmTime.setUnixTime(this->time);
+bool Alarm::isNow(time_t time_now) {
+  tm_t alarmTime, currentTime = {0};
 
-  RTCTime currentTime;
-  RTC.getTime(currentTime);
+  gmtime_r(&this->time, &alarmTime);
+  gmtime_r(&time_now, &currentTime);
   
-  if (alarmTime.getHour() == currentTime.getHour()
-      && alarmTime.getMinutes() == currentTime.getMinutes()
+  if (alarmTime.tm_hour == currentTime.tm_hour
+      && alarmTime.tm_min == currentTime.tm_min
       && ((this->days == 0 && this->enabled) 
-          || (this->days >> (int)currentTime.getDayOfWeek()) & 1 )) {
+          || (this->days >> (int)currentTime.tm_wday) & 1 )) {
             return true;
           }
   return false;
