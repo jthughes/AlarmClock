@@ -3,6 +3,8 @@
 
 #include <time.h>
 
+typedef struct tm tm_t;
+
 class Alarm {
   public:
     Alarm();
@@ -10,7 +12,7 @@ class Alarm {
     
     void arm(void (*callback)());
 
-    bool isNow();
+    bool isNow(time_t time_now);
 
     bool          set;
     bool          enabled;

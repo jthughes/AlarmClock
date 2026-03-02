@@ -1,6 +1,13 @@
 #include "arduino_secrets.h"
 
-#include "RTC.h"
+// #include "RTC.h"
+
+#include <R4SwRTC.h>
+#define  TMR_FREQ_HZ  100.055  /* If swRTC goes forward, decrease the frequency, if it lags, increase the frequency */
+
+r4SwRTC RTC; // Begin() called in network_time.ino
+typedef struct tm tm_t;
+
 
 
 #include <LiquidCrystal.h>
@@ -30,10 +37,12 @@ const int alarmMax = 20;
 Alarm alarms[alarmMax];
 int alarmCount = 0;
 
-
-bool tick;
 bool alarmTriggered = false;
 bool menuActive = false; 
+
+unsigned long lastTick;
+unsigned long lastMillis;
+unsigned long overflow_offset = 0;
 
 void setup() {
   // Initialise buttons
@@ -48,27 +57,37 @@ void setup() {
   Serial.begin(9600);
   while (!Serial);
 
-  // Initialise network time
-  get_network_time();
-  tick = true;
-  RTC.setPeriodicCallback(clockTick, Period::ONCE_EVERY_1_SEC);
+  // Get network time
+  time_t unixTime = 0;
 
-  // Initialise LCD screen
+  bool network_success = get_network_time(&unixTime);
+  if (!network_success) {
+    Serial.println("Network time not set, defaulting to midnight");
+  }
+
+  // Start software RTC
+  bool success = RTC.begin(TMR_FREQ_HZ);
+  if (!success) {
+    Serial.println("Failed to start RTC timer");
+    while (true) delay (100);
+  }
+
+  RTC.setUnixTime(unixTime);
+  Serial.println("The RTC was just set to: " + String(asctime(RTC.getTmTime())));
+
+  // Display time on screen
   lcd.begin(16, 2);
 
-
-  RTCTime currentTime;
-  RTC.getTime(currentTime);
+  time_t currentTime = RTC.getUnixTime();
   displayTime(currentTime);
+
+  lastMillis = millis();
 }
 
 void alarmCallback() {
   alarmTriggered = true;
 }
 
-void clockTick() {
-  tick = true;
-}
 
 #include "menu.h"
 
@@ -80,8 +99,7 @@ void loop() {
 
     menuActive = false;
     
-    RTCTime currentTime;
-    RTC.getTime(currentTime);
+    time_t currentTime = RTC.getUnixTime();
     displayTime(currentTime);
   }
 
@@ -92,15 +110,51 @@ void loop() {
   }
 
   // If not in menu, update clock
-  if (tick) {
-    tick = false;
-    RTCTime currentTime;
-    RTC.getTime(currentTime);
-    if (currentTime.getSeconds() == 0) {
 
-      displayTime(currentTime);
-      checkAlarms(alarms, alarmCount);
+  /*
+  Things to try:
+  - tick every 2 seconds
+  - Update a counter, and only when a change is likely to be close actually poll the RTC time
+  - 
+  */
+
+  // Check for millis wraparound
+  if (millis() < lastMillis) {
+    lastMillis = millis();
+    overflow_offset = lastTick + 1000; // Overflows to a value < 1000
+    lastTick = 0;
+  }
+
+  // Every second on clock tick
+  if (millis() - lastTick > 1000 - overflow_offset) {
+    // Handle millis() overflow
+    if (overflow_offset != 0) {
+      lastTick = overflow_offset;
+      overflow_offset = 0;
     }
+
+    lastTick += 1000;
+    time_t now = RTC.getUnixTime();
+    tm_t currentTime = {0};
+    gmtime_r(&now, &currentTime);
+    
+    // Update screen if new minute
+    if (currentTime.tm_sec == 0) {
+      // Update from NTP @ 4:30 am
+      if (currentTime.tm_hour == 4 && currentTime.tm_min == 30) {
+        // get_network_time() has the potential to lock up if wifi or ntp doesn't work. Need to ensure time keeps running even if 
+        time_t network_time = 0;
+        bool network_success = get_network_time(&network_time);
+        if (network_success) {
+          now = network_time;
+          RTC.setUnixTime(now);
+        }
+      }
+      displayTime(now);
+      checkAlarms(alarms, alarmCount, now);
+    }
+
+    lastMillis = millis();
   }
 
   // Detect alarm
@@ -132,17 +186,16 @@ void loop() {
         break ;
       }
     }
-    RTCTime currentTime;
-    RTC.getTime(currentTime);
+    time_t currentTime = RTC.getUnixTime();
     displayTime(currentTime);
   }
 }
 
 // This will like need to be modified to handle checks for repeating alarms
-void checkAlarms(Alarm *alarm, int alarmCount) {
+void checkAlarms(Alarm *alarm, int alarmCount, time_t currentTime) {
   for (int index = 0; index < alarmCount; index += 1) {
 
-    if (alarm[index].enabled && alarm[index].isNow()) {
+    if (alarm[index].enabled && alarm[index].isNow(currentTime)) {
       alarmTriggered = true;
       Serial.print("Alarm ");
       Serial.print(index + 1);
@@ -157,7 +210,7 @@ void checkAlarms(Alarm *alarm, int alarmCount) {
 } 
 
 
-void displayTime(RTCTime time) {
+void displayTime(time_t time) {
   char time_str[8];
   timeString(time, time_str);
 
@@ -168,17 +221,20 @@ void displayTime(RTCTime time) {
 
   // Write to serial monitor
   Serial.print("Time is ");
-  Serial.print(String(time_str));
+  Serial.print(String(time_str) + " (" + String((unsigned long)time) +")");
   Serial.println("");
 }
 
 
-void timeString(RTCTime time, char* time_str) {
+void timeString(time_t time_val, char* time_str) {
   time_str = strncpy(time_str, "00:00AM", 8);
 
-  int hour = time.getHour();
+  tm_t time;
+  gmtime_r(&time_val, &time);
+
+  int hour = time.tm_hour;
   int hour12 = (hour - 1) % 12 + 1;
-  int minute = time.getMinutes();
+  int minute = time.tm_min;
 
   if (hour12 < 10) {
     time_str[1] += hour12;

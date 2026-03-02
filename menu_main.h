@@ -7,7 +7,7 @@ namespace root {
     if (index == 0 && alarmCount != alarmMax) {
       message = "> New Alarm";
     } else {
-      RTCTime timeToPrint = RTCTime(alarms[index - 1].time);
+      time_t timeToPrint = alarms[index - 1].time;
       char time_str[8];
       timeString(timeToPrint, time_str);
 
