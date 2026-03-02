@@ -111,13 +111,6 @@ void loop() {
 
   // If not in menu, update clock
 
-  /*
-  Things to try:
-  - tick every 2 seconds
-  - Update a counter, and only when a change is likely to be close actually poll the RTC time
-  - 
-  */
-
   // Check for millis wraparound
   if (millis() < lastMillis) {
     lastMillis = millis();
@@ -213,16 +206,27 @@ void checkAlarms(Alarm *alarm, int alarmCount, time_t currentTime) {
 void displayTime(time_t time) {
   char time_str[8];
   timeString(time, time_str);
+  char date_str[17];
+  dateString(time, date_str);
 
   // Write to screen
   lcd.clear();
   lcd.setCursor(4, 0);
   lcd.print(time_str);
+  lcd.setCursor(0, 1);
+  lcd.print(date_str);
 
   // Write to serial monitor
   Serial.print("Time is ");
   Serial.print(String(time_str) + " (" + String((unsigned long)time) +")");
   Serial.println("");
+}
+
+void dateString(time_t time_val, char* date_str) {
+  tm_t time;
+  gmtime_r(&time_val, &time);
+
+  strftime(date_str, 17, "%a, %e %b %Y", &time);
 }
 
 
@@ -231,7 +235,7 @@ void timeString(time_t time_val, char* time_str) {
 
   tm_t time;
   gmtime_r(&time_val, &time);
-
+  
   int hour = time.tm_hour;
   int hour12 = (hour - 1) % 12 + 1;
   int minute = time.tm_min;
