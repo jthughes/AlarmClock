@@ -19,7 +19,7 @@ namespace alarm_days {
 
   void display(Alarm *tempAlarm, int menuState) {
     String message = "-> " + menuText[menuState];
-    if (tempAlarm->days >> menuState & 1) {
+    if (tempAlarm->isDaySet((day_t)menuState)) {
       message += " [*]";
     } else {
       message += " [ ]";
@@ -36,7 +36,7 @@ namespace alarm_days {
   bool run(Alarm *tempAlarm) {
     int menuState = 0;
     bool menuActive = true;
-    unsigned int initial_days = tempAlarm->days;
+    unsigned int initial_days = tempAlarm->getDays();
 
     display(tempAlarm, menuState);
 
@@ -47,7 +47,7 @@ namespace alarm_days {
       }
 
       if (button::pressed(button::SELECT)) {
-        tempAlarm->days = tempAlarm->days ^ (1 << menuState);
+        tempAlarm->toggleDay((day_t) menuState);
         display(tempAlarm, menuState);
       }
 
@@ -56,7 +56,7 @@ namespace alarm_days {
       }
     }
     Serial.println("Exiting modify alarm days menu");
-    bool modified = tempAlarm->days != initial_days;
+    bool modified = tempAlarm->getDays() != initial_days;
     return modified;
   }
 }
