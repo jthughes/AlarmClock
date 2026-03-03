@@ -16,6 +16,8 @@ namespace menu {
       lcd.setCursor(0,1);
       lcd.print("    -SWAP-SELECT");
 
+      unsigned int lastActive = millis();
+
       while (menuActive) {
         if (button::pressed(button::NEXT)) {
           save = !save;
@@ -29,7 +31,9 @@ namespace menu {
           lcd.print(current);
           lcd.setCursor(0,1);
           lcd.print("    -SWAP-SELECT");
+          lastActive = millis();
         }
+
         if (button::pressed(button::SELECT)) {
           if (save) {
             Serial.println("Alarm is saved");
@@ -37,6 +41,10 @@ namespace menu {
             Serial.println("Alarm is discarded");
           }
           return save;
+        }
+
+        if (millis() - lastActive > MENU_TIMEOUT * 60) {
+          return false;
         }
       }
     }

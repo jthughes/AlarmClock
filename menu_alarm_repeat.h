@@ -39,12 +39,14 @@ namespace alarm_repeat {
 
     display(tempAlarm, menuState);
 
+    unsigned int lastActive = millis();
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
         if (tempAlarm->repeat > 0) {
           menuState = (menuState + 1) % menuSize;
         }
         display(tempAlarm, menuState);
+        lastActive = millis();
       }
 
       if (button::pressed(button::SELECT)) {
@@ -54,10 +56,17 @@ namespace alarm_repeat {
           tempAlarm->repeat_delay_min = tempAlarm->repeat_delay_min % 30 + 5;
         }
         display(tempAlarm, menuState);
+        lastActive = millis();
       }
 
       if (button::pressed(button::MENU)) {
         menuActive = false;
+        lastActive = millis();
+      }
+
+      if (millis() - lastActive > MENU_TIMEOUT) {
+        Serial.println("Timed out of alarm modify menu");
+        return false;
       }
     }
     Serial.println("Exiting modify alarm repeat menu");

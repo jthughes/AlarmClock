@@ -44,6 +44,8 @@ unsigned long lastTick;
 unsigned long lastMillis;
 unsigned long overflow_offset = 0;
 
+#define MENU_TIMEOUT 10000
+
 void setup() {
   // Initialise buttons
   pinMode(btnPin[button::NEXT], INPUT_PULLUP);

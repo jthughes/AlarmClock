@@ -113,6 +113,7 @@ namespace alarm_time {
     }
 
     display(menuState, time);
+    unsigned int lastActive = millis();
 
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
@@ -137,11 +138,13 @@ namespace alarm_time {
             // You should not get here.
             break;
         }
+        lastActive = millis();
       }
 
       if (button::pressed(button::SELECT)) {
         menuState = (menuState + 1) % 3;
         display(menuState, time);
+        lastActive = millis();
       }
 
       if (button::pressed(button::MENU)) {
@@ -150,7 +153,13 @@ namespace alarm_time {
         time_t initial_time = tempAlarm->time;
         tempAlarm->time = time.minute*60 + time.hour*3600 +12*3600*time.afternoon;
         modified = tempAlarm->time != initial_time;
+        lastActive = millis();
       }
+
+      if (millis() - lastActive > MENU_TIMEOUT) {
+        return false;
+      }
+
     }
     return modified;
   }

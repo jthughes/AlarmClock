@@ -39,20 +39,28 @@ namespace alarm_days {
     unsigned int initial_days = tempAlarm->getDays();
 
     display(tempAlarm, menuState);
-
+    unsigned int lastActive = millis();
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
         menuState = (menuState + 1) % menuSize;
         display(tempAlarm, menuState);
+        lastActive = millis();
       }
 
       if (button::pressed(button::SELECT)) {
         tempAlarm->toggleDay((day_t) menuState);
         display(tempAlarm, menuState);
+        lastActive = millis();
       }
 
       if (button::pressed(button::MENU)) {
         menuActive = false;
+        lastActive = millis();
+      }
+      
+      if (millis() - lastActive > MENU_TIMEOUT) {
+        Serial.println("Timed out of alarm modify menu");
+        return false;
       }
     }
     Serial.println("Exiting modify alarm days menu");

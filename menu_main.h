@@ -31,6 +31,8 @@ namespace root {
     int index = 0;
     bool menuActive = true;
     display(index);
+
+    unsigned long lastActive = millis();
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
         index += 1;
@@ -38,9 +40,11 @@ namespace root {
           index = 0;
         }
         display(index);
+        lastActive = millis();
       }
 
       if (button::pressed(button::SELECT)) {
+        lastActive = millis();
         Alarm tempAlarm;
         if (index == 0) { // New Alarm
           menu::alarm_time::run(&tempAlarm);
@@ -59,9 +63,16 @@ namespace root {
           }
         }
         menuActive = false;
+        lastActive = millis();
       }
 
       if (button::pressed(button::MENU)) {
+        menuActive = false;
+        lastActive = millis();
+        break ;
+      }
+      
+      if (millis() - lastActive > MENU_TIMEOUT) {
         menuActive = false;
         break ;
       }

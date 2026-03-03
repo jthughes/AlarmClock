@@ -49,10 +49,12 @@ namespace alarm_modify {
 
     display(menuState, tempAlarm);
 
+    unsigned int lastActive = millis();
     while (menuActive) {
       if (button::pressed(button::NEXT)) {
         menuState = (menuState + 1) % menuSize;
         display(menuState, tempAlarm);
+        lastActive = millis();
       }
 
       if (button::pressed(button::SELECT)) {
@@ -79,11 +81,17 @@ namespace alarm_modify {
           modified = true;
         }
         display(menuState, tempAlarm);
+        lastActive = millis();
       }
 
       if (button::pressed(button::MENU)) {
         menuActive = false;
         Serial.println("Exiting configure alarm menu");
+        lastActive = millis();
+      }
+
+      if (millis() - lastActive > MENU_TIMEOUT) {
+        return false;
       }
     }
     if (tempAlarm->enabled != initial_status) {
