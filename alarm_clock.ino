@@ -241,6 +241,9 @@ void timeString(time_t time_val, char* time_str) {
   int hour = time.tm_hour;
   int hour12 = (hour - 1) % 12 + 1;
   int minute = time.tm_min;
+  if (hour12 == 0) {
+    hour12 = 12;
+  }
 
   if (hour12 < 10) {
     time_str[1] += hour12;
