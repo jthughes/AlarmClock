@@ -46,16 +46,16 @@ bool Alarm::isNow(time_t time_now) {
   gmtime_r(&time_now, &currentTime);
   
   // Create an array of any recurring alarms;
-  const int alarm_count = this->repeatMax + 1;
-  time_t alarms[alarm_count] = {0};
-  alarms[0] = this->time;
+  const int alarm_count = this->repeat + 1;
+  time_t alarm_time[alarm_count] = {0};
+  alarm_time[0] = this->time;
   for (int i = 1; i <= this->repeat; i += 1) {
-    alarms[i] = alarms[i-1] + 60*this->repeat_delay_min;
+    alarm_time[i] = alarm_time[i-1] + 60*this->repeat_delay_min;
   }
   
   // Check each alarm
   for (int i = 0; i < alarm_count; i += 1) {
-    gmtime_r(&alarms[i], &alarmTime);
+    gmtime_r(&alarm_time[i], &alarmTime);
     
     // If either any day, or today is one of the set days, return true if current time is now
     if ((this->days == 0 || this->isDaySet((day_t)currentTime.tm_wday)) && match_hour_minute(&alarmTime, &currentTime)) {
